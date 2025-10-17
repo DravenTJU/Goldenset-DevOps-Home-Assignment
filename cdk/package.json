@@ -1,0 +1,29 @@
+{
+  "name": "nextjs-dashboard-cdk",
+  "version": "1.0.0",
+  "description": "AWS CDK Infrastructure for Next.js Dashboard",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "cdk": "cdk",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy --all",
+    "deploy:network": "cdk deploy NetworkStack",
+    "deploy:secrets": "cdk deploy SecretsStack",
+    "deploy:database": "cdk deploy DatabaseStack",
+    "deploy:amplify": "cdk deploy AmplifyStack",
+    "synth": "cdk synth",
+    "destroy": "cdk destroy --all"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "aws-cdk": "^2.167.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.167.0",
+    "@aws-cdk/aws-amplify-alpha": "^2.167.0-alpha.0",
+    "constructs": "^10.4.2"
+  }
+}
