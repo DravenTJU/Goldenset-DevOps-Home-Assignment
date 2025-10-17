@@ -2,8 +2,18 @@ import bcrypt from 'bcrypt';
 import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 import { sql } from '../lib/db';
 
+async function createExtension() {
+  try {
+    await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  } catch (error: any) {
+    // Ignore errors if the extension already exists
+    if (error.code !== '23505') {
+      throw error;
+    }
+  }
+}
+
 async function seedUsers() {
-  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -28,8 +38,6 @@ async function seedUsers() {
 }
 
 async function seedInvoices() {
-  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-
   await sql`
     CREATE TABLE IF NOT EXISTS invoices (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -54,8 +62,6 @@ async function seedInvoices() {
 }
 
 async function seedCustomers() {
-  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
-
   await sql`
     CREATE TABLE IF NOT EXISTS customers (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -101,15 +107,20 @@ async function seedRevenue() {
 
 export async function GET() {
   try {
-    const result = await sql.begin((sql) => [
-      seedUsers(),
-      seedCustomers(),
-      seedInvoices(),
-      seedRevenue(),
-    ]);
+    // First create the extension (outside of the transaction)
+    await createExtension();
+
+    // Then create the tables and insert data in the transaction
+    await sql.begin(async (sql) => {
+      await seedUsers();
+      await seedCustomers();
+      await seedInvoices();
+      await seedRevenue();
+    });
 
     return Response.json({ message: 'Database seeded successfully' });
   } catch (error) {
+    console.error('Seed error:', error);
     return Response.json({ error }, { status: 500 });
   }
 }
