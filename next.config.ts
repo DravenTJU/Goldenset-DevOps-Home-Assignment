@@ -1,6 +1,9 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // AWS Amplify requires standalone output for SSR
+  output: 'standalone',
+
   // Image optimization configuration
   images: {
     domains: [],
