@@ -20,6 +20,10 @@ applications:
             - cp -r .next/static .next/standalone/.next/
             - echo "Copying required server files..."
             - cp .next/required-server-files.json .next/standalone/
+            - cp .next/trace .next/standalone/
+            - cp .next/build-manifest.json .next/standalone/
+            - cp .next/routes-manifest.json .next/standalone/
+            - cp .next/prerender-manifest.json .next/standalone/
             - echo "Verifying required files are present..."
             - ls -la .next/standalone/
         postBuild:
