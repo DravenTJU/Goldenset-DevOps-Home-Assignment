@@ -10,9 +10,9 @@ export class NetworkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 创建VPC - 优化免费套餐配置(单AZ)
+    // 创建VPC - RDS需要至少2个AZ的子网
     this.vpc = new ec2.Vpc(this, 'DashboardVPC', {
-      maxAzs: 1, // 单可用区 - 免费套餐优化
+      maxAzs: 2, // RDS要求子网组至少覆盖2个AZ
       natGateways: 0, // 不使用NAT网关以节省成本
       subnetConfiguration: [
         {
