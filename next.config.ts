@@ -23,6 +23,15 @@ const nextConfig: NextConfig = {
 
   // PoweredByHeader
   poweredByHeader: false,
+
+  // Ignore CDK and node_modules
+  webpack: (config) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/cdk/**', '**/node_modules/**', '**/.git/**'],
+    };
+    return config;
+  },
 };
 
 export default nextConfig;
