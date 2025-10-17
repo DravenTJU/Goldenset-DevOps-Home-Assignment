@@ -2,14 +2,13 @@ import * as cdk from 'aws-cdk-lib';
 import * as amplify from '@aws-cdk/aws-amplify-alpha';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 
 interface AmplifyStackProps extends cdk.StackProps {
   dbEndpoint: string;
-  dbPort: number;
+  dbPort: string;
   dbName: string;
-  dbCredentials: rds.DatabaseSecret;
+  dbCredentials: secretsmanager.Secret;
   authSecret: secretsmanager.Secret;
   githubToken: string; // 需要通过环境变量或参数传入
   githubRepo: string;  // 格式: owner/repo
@@ -101,7 +100,7 @@ export class AmplifyStack extends cdk.Stack {
 
     // 数据库连接环境变量
     this.amplifyApp.addEnvironment('POSTGRES_HOST', dbEndpoint);
-    this.amplifyApp.addEnvironment('POSTGRES_PORT', dbPort.toString());
+    this.amplifyApp.addEnvironment('POSTGRES_PORT', dbPort);
     this.amplifyApp.addEnvironment('POSTGRES_DATABASE', dbName);
     this.amplifyApp.addEnvironment('POSTGRES_USER', dbCredentials.secretValueFromJson('username').unsafeUnwrap());
 
