@@ -20,9 +20,12 @@ applications:
             # Attention: After the first deployment, you need to manually access the /seed endpoint to initialize the database
             # Or add an automation script here
       artifacts:
-        baseDirectory: .next
+        baseDirectory: .
         files:
           - '**/*'
+          - '.next/**/*'
+          - 'public/**/*'
+          - 'package.json'
       cache:
         paths:
           - node_modules/**/*
