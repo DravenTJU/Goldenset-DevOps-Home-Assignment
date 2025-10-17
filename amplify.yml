@@ -1,0 +1,35 @@
+version: 1
+applications:
+  - appRoot: .
+    frontend:
+      phases:
+        preBuild:
+          commands:
+            - echo "Installing pnpm..."
+            - npm install -g pnpm@latest
+            - echo "Installing dependencies..."
+            - pnpm install --frozen-lockfile
+        build:
+          commands:
+            - echo "Building Next.js application..."
+            - pnpm build
+        postBuild:
+          commands:
+            - echo "Build completed successfully"
+            - echo "Checking if database needs initialization..."
+            # Attention: After the first deployment, you need to manually access the /seed endpoint to initialize the database
+            # Or add an automation script here
+      artifacts:
+        baseDirectory: .next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - .next/cache/**/*
+          - .pnpm-store/**/*
+    backend:
+      phases:
+        build:
+          commands:
+            - echo "No backend build required"
