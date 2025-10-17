@@ -1,21 +1,24 @@
 import * as cdk from 'aws-cdk-lib';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
-import * as rds from 'aws-cdk-lib/aws-rds';
 import { Construct } from 'constructs';
 
 export class SecretsStack extends cdk.Stack {
-  public readonly dbCredentials: rds.DatabaseSecret;
+  public readonly dbCredentials: secretsmanager.Secret;
   public readonly authSecret: secretsmanager.Secret;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     // 创建数据库凭证密钥
-    // RDS会自动生成强密码
-    this.dbCredentials = new rds.DatabaseSecret(this, 'DBCredentials', {
-      username: 'dashboard_admin',
+    this.dbCredentials = new secretsmanager.Secret(this, 'DBCredentials', {
       secretName: 'nextjs-dashboard/db-credentials',
-      excludeCharacters: '"@/\\\'', // 排除可能导致问题的字符
+      description: 'Database credentials for NextJS Dashboard',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({ username: 'dashboard_admin' }),
+        generateStringKey: 'password',
+        excludeCharacters: '"@/\\\'', // 排除可能导致问题的字符
+        passwordLength: 32,
+      },
     });
 
     // 创建NextAuth密钥
