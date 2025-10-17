@@ -15,17 +15,11 @@ applications:
           commands:
             - echo "Building Next.js application..."
             - pnpm build
-            - echo "Copying static files to standalone..."
+            - echo "Copying additional files to standalone..."
             - cp -r public .next/standalone/
             - cp -r .next/static .next/standalone/.next/
-            - echo "Copying required server files..."
-            - cp .next/required-server-files.json .next/standalone/
             - cp .next/trace .next/standalone/
-            - cp .next/build-manifest.json .next/standalone/
-            - cp .next/routes-manifest.json .next/standalone/
-            - cp .next/prerender-manifest.json .next/standalone/
-            - echo "Verifying required files are present..."
-            - ls -la .next/standalone/
+            - echo "Build completed successfully"
         postBuild:
           commands:
             - echo "Build completed successfully"
