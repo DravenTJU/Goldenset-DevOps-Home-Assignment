@@ -1,18 +1,19 @@
 import * as cdk from 'aws-cdk-lib';
 import * as rds from 'aws-cdk-lib/aws-rds';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
 interface DatabaseStackProps extends cdk.StackProps {
   vpc: ec2.Vpc;
   securityGroup: ec2.SecurityGroup;
-  dbCredentials: rds.DatabaseSecret;
+  dbCredentials: secretsmanager.Secret;
 }
 
 export class DatabaseStack extends cdk.Stack {
   public readonly dbInstance: rds.DatabaseInstance;
   public readonly dbEndpoint: string;
-  public readonly dbPort: number;
+  public readonly dbPort: string;
   public readonly dbName: string;
 
   constructor(scope: Construct, id: string, props: DatabaseStackProps) {
@@ -43,7 +44,12 @@ export class DatabaseStack extends cdk.Stack {
         ec2.InstanceClass.T3,
         ec2.InstanceSize.MICRO // db.t3.micro - 免费套餐
       ),
-      credentials: rds.Credentials.fromSecret(dbCredentials),
+      credentials: rds.Credentials.fromUsername(
+        dbCredentials.secretValueFromJson('username').unsafeUnwrap(),
+        {
+          password: dbCredentials.secretValueFromJson('password'),
+        }
+      ),
       vpc,
       vpcSubnets: {
         subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
