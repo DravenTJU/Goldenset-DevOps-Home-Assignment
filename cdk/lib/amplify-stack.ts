@@ -43,47 +43,7 @@ export class AmplifyStack extends cdk.Stack {
       }),
       platform: amplify.Platform.WEB_COMPUTE, // SSR support
       autoBranchDeletion: true,
-      customRules: [
-        // Handle Next.js dynamic routing
-        {
-          source: '/<*>',
-          target: '/index.html',
-          status: amplify.RedirectStatus.NOT_FOUND_REWRITE,
-        },
-      ],
-      buildSpec: cdk.aws_codebuild.BuildSpec.fromObjectToYaml({
-        version: 1,
-        applications: [
-          {
-            appRoot: '.',
-            frontend: {
-              phases: {
-                preBuild: {
-                  commands: [
-                    'npm install -g pnpm',
-                    'pnpm install',
-                  ],
-                },
-                build: {
-                  commands: [
-                    'pnpm build',
-                  ],
-                },
-              },
-              artifacts: {
-                baseDirectory: '.next',
-                files: ['**/*'],
-              },
-              cache: {
-                paths: [
-                  'node_modules/**/*',
-                  '.next/cache/**/*',
-                ],
-              },
-            },
-          },
-        ],
-      }),
+      // Use amplify.yml from repository instead of inline buildSpec
     });
 
     // Create main branch
