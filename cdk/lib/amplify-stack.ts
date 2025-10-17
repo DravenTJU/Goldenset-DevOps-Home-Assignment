@@ -10,8 +10,8 @@ interface AmplifyStackProps extends cdk.StackProps {
   dbName: string;
   dbCredentials: secretsmanager.Secret;
   authSecret: secretsmanager.Secret;
-  githubToken: string; // 需要通过环境变量或参数传入
-  githubRepo: string;  // 格式: owner/repo
+  githubToken: string; // Must be passed through environment variables or parameters
+  githubRepo: string;  // Format: owner/repo
   branchName?: string;
 }
 
@@ -33,7 +33,7 @@ export class AmplifyStack extends cdk.Stack {
       branchName = 'main',
     } = props;
 
-    // 创建Amplify应用
+    // Create Amplify application
     this.amplifyApp = new amplify.App(this, 'DashboardApp', {
       appName: 'nextjs-dashboard',
       sourceCodeProvider: new amplify.GitHubSourceCodeProvider({
@@ -41,10 +41,10 @@ export class AmplifyStack extends cdk.Stack {
         repository: githubRepo.split('/')[1],
         oauthToken: cdk.SecretValue.unsafePlainText(githubToken),
       }),
-      platform: amplify.Platform.WEB_COMPUTE, // SSR支持
+      platform: amplify.Platform.WEB_COMPUTE, // SSR support
       autoBranchDeletion: true,
       customRules: [
-        // 处理Next.js的动态路由
+        // Handle Next.js dynamic routing
         {
           source: '/<*>',
           target: '/index.html',
@@ -86,40 +86,40 @@ export class AmplifyStack extends cdk.Stack {
       }),
     });
 
-    // 创建主分支
+    // Create main branch
     this.mainBranch = this.amplifyApp.addBranch(branchName, {
       autoBuild: true,
       stage: 'PRODUCTION',
       branchName,
     });
 
-    // 添加环境变量
-    // 从Secrets Manager读取数据库密码
+    // Add environment variables
+    // Read database password from Secrets Manager
     const dbPasswordArn = dbCredentials.secretArn;
     const authSecretArn = authSecret.secretArn;
 
-    // 数据库连接环境变量
+    // Database connection environment variables
     this.amplifyApp.addEnvironment('POSTGRES_HOST', dbEndpoint);
     this.amplifyApp.addEnvironment('POSTGRES_PORT', dbPort);
     this.amplifyApp.addEnvironment('POSTGRES_DATABASE', dbName);
     this.amplifyApp.addEnvironment('POSTGRES_USER', dbCredentials.secretValueFromJson('username').unsafeUnwrap());
 
-    // 构建完整的PostgreSQL URL
-    // 注意: Amplify会在运行时解析这些值
+    // Build complete PostgreSQL URL
+    // Note: Amplify will resolve these values at runtime
     const postgresUrl = `postgresql://\${POSTGRES_USER}:\${DB_PASSWORD}@${dbEndpoint}:${dbPort}/${dbName}`;
     this.amplifyApp.addEnvironment('POSTGRES_URL', postgresUrl);
     this.amplifyApp.addEnvironment('POSTGRES_PRISMA_URL', postgresUrl);
     this.amplifyApp.addEnvironment('POSTGRES_URL_NON_POOLING', postgresUrl);
 
-    // NextAuth环境变量
+    // NextAuth environment variables
     this.amplifyApp.addEnvironment('AUTH_URL', `https://dashboard.draven.best/api/auth`);
 
-    // 添加敏感环境变量的引用(需要手动在Amplify控制台配置)
-    // 这里添加占位符,提醒需要手动设置
+    // Add sensitive environment variable references (requires manual configuration in Amplify console)
+    // Add placeholders here to remind manual setup
     this.amplifyApp.addEnvironment('DB_PASSWORD', `{{resolve:secretsmanager:${dbPasswordArn}:SecretString:password}}`);
     this.amplifyApp.addEnvironment('AUTH_SECRET', `{{resolve:secretsmanager:${authSecretArn}:SecretString:secret}}`);
 
-    // 为Amplify添加IAM权限以访问Secrets Manager
+    // Add IAM permissions for Amplify to access Secrets Manager
     const amplifyRole = new iam.Role(this, 'AmplifyRole', {
       assumedBy: new iam.ServicePrincipal('amplify.amazonaws.com'),
       description: 'Role for Amplify to access secrets',
@@ -128,16 +128,16 @@ export class AmplifyStack extends cdk.Stack {
     dbCredentials.grantRead(amplifyRole);
     authSecret.grantRead(amplifyRole);
 
-    // 配置自定义域名
+    // Configure custom domain
     const domain = this.amplifyApp.addDomain('draven.best', {
       enableAutoSubdomain: false,
       autoSubdomainCreationPatterns: [],
     });
 
-    // 映射子域名到主分支
+    // Map subdomain to main branch
     domain.mapSubDomain(this.mainBranch, 'dashboard');
 
-    // 输出
+    // Outputs
     new cdk.CfnOutput(this, 'AmplifyAppId', {
       value: this.amplifyApp.appId,
       description: 'Amplify App ID',
@@ -159,7 +159,7 @@ export class AmplifyStack extends cdk.Stack {
       description: 'Main branch name',
     });
 
-    // 标签
+    // Tags
     cdk.Tags.of(this).add('Project', 'NextJS-Dashboard');
     cdk.Tags.of(this).add('Environment', 'Production');
   }

@@ -10,10 +10,10 @@ export class NetworkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 创建VPC - RDS需要至少2个AZ的子网
+    // Create VPC - RDS requires at least 2 AZ subnets
     this.vpc = new ec2.Vpc(this, 'DashboardVPC', {
-      maxAzs: 2, // RDS要求子网组至少覆盖2个AZ
-      natGateways: 0, // 不使用NAT网关以节省成本
+      maxAzs: 2, // RDS requires subnet group to cover at least 2 AZs
+      natGateways: 0, // No NAT gateway to save costs
       subnetConfiguration: [
         {
           cidrMask: 24,
@@ -23,40 +23,40 @@ export class NetworkStack extends cdk.Stack {
         {
           cidrMask: 24,
           name: 'Isolated',
-          subnetType: ec2.SubnetType.PRIVATE_ISOLATED, // 隔离子网用于RDS
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED, // Isolated subnet for RDS
         },
       ],
       enableDnsHostnames: true,
       enableDnsSupport: true,
     });
 
-    // 为RDS创建安全组
+    // Create security group for RDS
     this.dbSecurityGroup = new ec2.SecurityGroup(this, 'DatabaseSecurityGroup', {
       vpc: this.vpc,
       description: 'Security group for RDS PostgreSQL database',
-      allowAllOutbound: false, // 不需要出站流量
+      allowAllOutbound: false, // No outbound traffic needed
     });
 
-    // 为Amplify创建安全组(用于VPC连接器)
+    // Create security group for Amplify (for VPC connector)
     this.amplifySecurityGroup = new ec2.SecurityGroup(this, 'AmplifySecurityGroup', {
       vpc: this.vpc,
       description: 'Security group for Amplify VPC connector',
       allowAllOutbound: true,
     });
 
-    // 允许Amplify安全组访问RDS的PostgreSQL端口
+    // Allow Amplify security group to access RDS PostgreSQL port
     this.dbSecurityGroup.addIngressRule(
       this.amplifySecurityGroup,
       ec2.Port.tcp(5432),
       'Allow PostgreSQL access from Amplify'
     );
 
-    // 添加VPC端点以减少数据传输成本(可选)
+    // Add VPC endpoint to reduce data transfer costs (optional)
     this.vpc.addGatewayEndpoint('S3Endpoint', {
       service: ec2.GatewayVpcEndpointAwsService.S3,
     });
 
-    // 输出VPC信息
+    // Output VPC information
     new cdk.CfnOutput(this, 'VpcId', {
       value: this.vpc.vpcId,
       description: 'VPC ID',
@@ -75,7 +75,7 @@ export class NetworkStack extends cdk.Stack {
       exportName: 'DashboardAmplifySecurityGroupId',
     });
 
-    // 标签
+    // Tags
     cdk.Tags.of(this).add('Project', 'NextJS-Dashboard');
     cdk.Tags.of(this).add('Environment', 'Production');
   }

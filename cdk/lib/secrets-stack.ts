@@ -9,19 +9,19 @@ export class SecretsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 创建数据库凭证密钥
+    // Create database credentials secret
     this.dbCredentials = new secretsmanager.Secret(this, 'DBCredentials', {
       secretName: 'nextjs-dashboard/db-credentials',
       description: 'Database credentials for NextJS Dashboard',
       generateSecretString: {
         secretStringTemplate: JSON.stringify({ username: 'dashboard_admin' }),
         generateStringKey: 'password',
-        excludeCharacters: '"@/\\\'', // 排除可能导致问题的字符
+        excludeCharacters: '"@/\\\'', // Exclude characters that may cause issues
         passwordLength: 32,
       },
     });
 
-    // 创建NextAuth密钥
+    // Create NextAuth secret
     this.authSecret = new secretsmanager.Secret(this, 'AuthSecret', {
       secretName: 'nextjs-dashboard/auth-secret',
       description: 'NextAuth authentication secret',
@@ -33,7 +33,7 @@ export class SecretsStack extends cdk.Stack {
       },
     });
 
-    // 输出密钥ARN
+    // Output secret ARNs
     new cdk.CfnOutput(this, 'DBCredentialsArn', {
       value: this.dbCredentials.secretArn,
       description: 'Database credentials secret ARN',
@@ -46,7 +46,7 @@ export class SecretsStack extends cdk.Stack {
       exportName: 'DashboardAuthSecretArn',
     });
 
-    // 标签
+    // Tags
     cdk.Tags.of(this).add('Project', 'NextJS-Dashboard');
     cdk.Tags.of(this).add('Environment', 'Production');
   }
