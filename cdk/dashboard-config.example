@@ -1,0 +1,13 @@
+# AWS Config
+export AWS_ACCOUNT_ID="your-aws-account-id"
+export AWS_REGION="ap-southeast-2"
+export CDK_DEFAULT_ACCOUNT="your-aws-account-id"
+export CDK_DEFAULT_REGION="ap-southeast-2"
+
+# GitHub Config
+export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
+export GITHUB_REPO="your-username/nextjs-dashboard"
+
+# Project Config
+export PROJECT_NAME="nextjs-dashboard"
+export ENVIRONMENT="production"
