@@ -33,6 +33,7 @@ applications:
       artifacts:
         baseDirectory: .next/standalone
         files:
+          - '.next/**'
           - '**/*'
       cache:
         paths:
