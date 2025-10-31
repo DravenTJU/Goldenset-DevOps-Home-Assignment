@@ -21,6 +21,8 @@ applications:
             - cp .next/trace .next/standalone/
             - if [ -f .next/required-server-files.json ]; then cp .next/required-server-files.json .next/standalone/; fi
             - if [ -f .next/images-manifest.json ]; then cp .next/images-manifest.json .next/standalone/; fi
+            - if [ -f .next/next-server.js.nft.json ]; then cp .next/next-server.js.nft.json .next/standalone/; fi
+            - if [ -f .next/next-minimal-server.js.nft.json ]; then cp .next/next-minimal-server.js.nft.json .next/standalone/; fi
             - echo "Build completed successfully"
         postBuild:
           commands:
