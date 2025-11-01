@@ -17,20 +17,14 @@ applications:
             - pnpm build
             - echo "Preparing Amplify deployment bundle..."
             - rm -rf amplify && mkdir -p amplify
-            # Copy the standalone server files (main entry point)
+            # Copy the entire standalone build (includes server.js, .next/, node_modules/, package.json)
             - cp -r .next/standalone/* amplify/
-            # Ensure .next directory structure exists
-            - mkdir -p amplify/.next/static amplify/.next/server
-            # Copy the .next build output (includes static files, server chunks, and trace files)
-            - cp -r .next/static/* amplify/.next/static/
-            # Copy server-related files
-            - if [ -d .next/server ]; then cp -r .next/server/* amplify/.next/server/; fi
-            # Copy public assets (standalone already includes public, but ensure it's there)
+            # Copy static files (standalone doesn't include .next/static)
+            - cp -r .next/static amplify/.next/static
+            # Copy public assets if not already in standalone
             - if [ -d public ] && [ ! -d amplify/public ]; then cp -r public amplify/public; fi
-            # Copy required manifest files to root directory (Amplify expects them here)
-            - if [ -f .next/required-server-files.json ]; then cp .next/required-server-files.json amplify/required-server-files.json; fi
-            - if [ -f .next/routes-manifest.json ]; then cp .next/routes-manifest.json amplify/.next/routes-manifest.json; fi
-            - if [ -f .next/prerender-manifest.json ]; then cp .next/prerender-manifest.json amplify/.next/prerender-manifest.json; fi
+            # Copy required-server-files.json to root for Amplify
+            - cp amplify/.next/required-server-files.json amplify/required-server-files.json
             - echo "Build completed successfully"
         postBuild:
           commands:
