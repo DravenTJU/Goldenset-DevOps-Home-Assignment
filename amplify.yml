@@ -15,17 +15,13 @@ applications:
           commands:
             - echo "Building Next.js application..."
             - pnpm build
-            - echo "Preparing Amplify deployment bundle..."
-            - rm -rf amplify && mkdir -p amplify
-            # Copy the entire standalone build (includes server.js, .next/, node_modules/, package.json)
-            # Use bash to ensure hidden files (.next) are copied
-            - shopt -s dotglob && cp -r .next/standalone/* amplify/ && shopt -u dotglob
-            # Copy static files (standalone doesn't include .next/static)
-            - cp -r .next/static amplify/.next/static
+            - echo "Preparing deployment files..."
+            # Copy static files into standalone directory
+            - cp -r .next/static .next/standalone/.next/static
             # Copy public assets if not already in standalone
-            - if [ -d public ] && [ ! -d amplify/public ]; then cp -r public amplify/public; fi
-            # Copy required-server-files.json to root for Amplify
-            - cp amplify/.next/required-server-files.json amplify/required-server-files.json
+            - if [ -d public ] && [ ! -d .next/standalone/public ]; then cp -r public .next/standalone/public; fi
+            # Copy required-server-files.json to root of standalone for Amplify
+            - cp .next/standalone/.next/required-server-files.json .next/standalone/required-server-files.json
             - echo "Build completed successfully"
         postBuild:
           commands:
@@ -34,7 +30,7 @@ applications:
             # Attention: After the first deployment, you need to manually access the /seed endpoint to initialize the database
             # Or add an automation script here
       artifacts:
-        baseDirectory: amplify
+        baseDirectory: .next/standalone
         files:
           - '**/*'
       cache:
