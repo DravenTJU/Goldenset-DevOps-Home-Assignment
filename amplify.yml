@@ -18,7 +18,8 @@ applications:
             - echo "Preparing Amplify deployment bundle..."
             - rm -rf amplify && mkdir -p amplify
             # Copy the entire standalone build (includes server.js, .next/, node_modules/, package.json)
-            - cp -r .next/standalone/* amplify/
+            # Use bash to ensure hidden files (.next) are copied
+            - shopt -s dotglob && cp -r .next/standalone/* amplify/ && shopt -u dotglob
             # Copy static files (standalone doesn't include .next/static)
             - cp -r .next/static amplify/.next/static
             # Copy public assets if not already in standalone
