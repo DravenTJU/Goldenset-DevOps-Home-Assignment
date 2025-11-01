@@ -1,8 +1,8 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // AWS Amplify requires standalone output for SSR
-  output: 'standalone',
+  // Note: Removed 'output: standalone' for AWS Amplify compatibility
+  // Amplify has its own way of handling Next.js deployments
 
   // Image optimization configuration
   images: {
