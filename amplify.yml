@@ -19,6 +19,8 @@ applications:
             - rm -rf amplify && mkdir -p amplify
             - cp -r .next amplify/.next
             - rm -rf amplify/.next/standalone
+            - if [ -f .next/required-server-files.json ]; then cp .next/required-server-files.json amplify/; fi
+            - if [ -f .next/images-manifest.json ]; then cp .next/images-manifest.json amplify/; fi
             - cp -r .next/standalone/node_modules amplify/
             - cp .next/standalone/package.json amplify/
             - cp .next/standalone/server.js amplify/
