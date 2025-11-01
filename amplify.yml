@@ -23,16 +23,14 @@ applications:
             - mkdir -p amplify/.next/static amplify/.next/server
             # Copy the .next build output (includes static files, server chunks, and trace files)
             - cp -r .next/static/* amplify/.next/static/
-            # Copy server-related trace files
+            # Copy server-related files
             - if [ -d .next/server ]; then cp -r .next/server/* amplify/.next/server/; fi
-            # Copy trace files if they exist
-            - find .next -name "*.nft.json" -exec sh -c 'mkdir -p amplify/$(dirname {}) && cp {} amplify/{}' \;
             # Copy public assets (standalone already includes public, but ensure it's there)
             - if [ -d public ] && [ ! -d amplify/public ]; then cp -r public amplify/public; fi
-            # Copy required manifest files
-            - if [ -f .next/required-server-files.json ]; then cp .next/required-server-files.json amplify/.next/; fi
-            - if [ -f .next/routes-manifest.json ]; then cp .next/routes-manifest.json amplify/.next/; fi
-            - if [ -f .next/prerender-manifest.json ]; then cp .next/prerender-manifest.json amplify/.next/; fi
+            # Copy required manifest files to root directory (Amplify expects them here)
+            - if [ -f .next/required-server-files.json ]; then cp .next/required-server-files.json amplify/required-server-files.json; fi
+            - if [ -f .next/routes-manifest.json ]; then cp .next/routes-manifest.json amplify/.next/routes-manifest.json; fi
+            - if [ -f .next/prerender-manifest.json ]; then cp .next/prerender-manifest.json amplify/.next/prerender-manifest.json; fi
             - echo "Build completed successfully"
         postBuild:
           commands:
