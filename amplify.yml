@@ -15,14 +15,14 @@ applications:
           commands:
             - echo "Building Next.js application..."
             - pnpm build
-            - echo "Copying additional files to standalone..."
-            - cp -r public .next/standalone/
-            - cp -r .next/static .next/standalone/.next/
-            - cp .next/trace .next/standalone/
-            - if [ -f .next/required-server-files.json ]; then cp .next/required-server-files.json .next/standalone/; fi
-            - if [ -f .next/images-manifest.json ]; then cp .next/images-manifest.json .next/standalone/; fi
-            - if [ -f .next/next-server.js.nft.json ]; then cp .next/next-server.js.nft.json .next/standalone/; fi
-            - if [ -f .next/next-minimal-server.js.nft.json ]; then cp .next/next-minimal-server.js.nft.json .next/standalone/; fi
+            - echo "Preparing Amplify deployment bundle..."
+            - rm -rf amplify && mkdir -p amplify
+            - cp -r .next amplify/.next
+            - rm -rf amplify/.next/standalone
+            - cp -r .next/standalone/node_modules amplify/
+            - cp .next/standalone/package.json amplify/
+            - cp .next/standalone/server.js amplify/
+            - cp -r public amplify/
             - echo "Build completed successfully"
         postBuild:
           commands:
@@ -31,9 +31,8 @@ applications:
             # Attention: After the first deployment, you need to manually access the /seed endpoint to initialize the database
             # Or add an automation script here
       artifacts:
-        baseDirectory: .next/standalone
+        baseDirectory: amplify
         files:
-          - '.next/**'
           - '**/*'
       cache:
         paths:
